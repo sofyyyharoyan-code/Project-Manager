@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Դու Project Manager-ն ես. թիմային խնդրի վերլուծություն</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Armenian:wght@400;600;800&family=Noto+Serif+Armenian:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f4f8;--card:#fff;--ink:#14213d;--mut:#55627d;--line:#d7dce6;--acc:#0f766e;--accbg:#d9f0ec;--warn:#b45309;--warnbg:#fbe9d3;--bad:#b42318;--badbg:#fde4e1;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1626;--card:#18223a;--ink:#e8ecf5;--mut:#9aa7c2;--line:#2b3957;--acc:#4fd1c0;--accbg:#12403c;--warn:#f0a95a;--warnbg:#3e2d14;--bad:#ff8a7a;--badbg:#42201c}}
+:root[data-theme="dark"]{--bg:#0f1626;--card:#18223a;--ink:#e8ecf5;--mut:#9aa7c2;--line:#2b3957;--acc:#4fd1c0;--accbg:#12403c;--warn:#f0a95a;--warnbg:#3e2d14;--bad:#ff8a7a;--badbg:#42201c}
+html{scroll-behavior:smooth;scroll-padding-top:70px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 "Noto Sans Armenian",system-ui,sans-serif}
+h1,h2,h3{font-family:"Noto Serif Armenian",Georgia,serif;line-height:1.25;margin:0 0 .5em}
+h2{font-size:1.7rem}h3{font-size:1.15rem}
+nav{position:sticky;top:0;z-index:10;background:var(--card);border-bottom:1px solid var(--line);display:flex;gap:4px;overflow-x:auto;padding:8px 12px;padding-top:calc(8px + env(safe-area-inset-top,0px))}
+nav a{white-space:nowrap;color:var(--mut);text-decoration:none;font-size:.85rem;padding:6px 10px;border-radius:6px}
+nav a.on{background:var(--acc);color:var(--bg);font-weight:600}
+header{padding:48px 20px 36px;max-width:960px;margin:auto}
+header h1{font-size:clamp(2rem,6vw,3.4rem);margin-bottom:.3em}
+header p{color:var(--mut);max-width:62ch}
+.flow{display:flex;flex-wrap:wrap;gap:6px;margin-top:22px}
+.flow button{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 12px;border-radius:8px;cursor:pointer;font:inherit;font-size:.85rem}
+.flow button:hover{border-color:var(--acc)}
+main{max-width:960px;margin:auto;padding:0 20px 80px}
+section{padding:44px 0 8px;border-top:1px solid var(--line)}
+.lead{color:var(--mut);max-width:70ch}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin:14px 0}
+.note{border-left:4px solid var(--acc);background:var(--accbg);padding:12px 16px;border-radius:0 8px 8px 0;margin:16px 0}
+.note.w{border-color:var(--warn);background:var(--warnbg)}
+.note.b{border-color:var(--bad);background:var(--badbg)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 0}
+.tabs button{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 14px;border-radius:8px 8px 0 0;cursor:pointer;font:inherit;font-size:.9rem}
+.tabs button[aria-selected="true"]{background:var(--acc);color:var(--bg);border-color:var(--acc);font-weight:600}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:0 10px 10px 10px;padding:18px 20px}
+.panel dt{font-weight:600;margin-top:12px;color:var(--acc)}
+.panel dd{margin:2px 0 0}
+.tw{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:.92rem}
+th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}
+th{background:var(--accbg)}
+.mem{cursor:pointer;text-align:left;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px}
+.mem[aria-expanded="true"]{border-color:var(--acc);box-shadow:0 0 0 2px var(--accbg)}
+.mem b{display:block;margin-bottom:4px}
+.mem span{display:none;font-size:.88rem;color:var(--mut);margin-top:8px}
+.mem[aria-expanded="true"] span{display:block}
+.pyr{display:flex;flex-direction:column-reverse;gap:6px;align-items:center;margin:18px 0}
+.pyr button{border:0;cursor:pointer;font:inherit;font-weight:600;color:var(--ink);padding:12px;border-radius:8px;background:var(--accbg);outline:2px solid transparent}
+.pyr button[aria-pressed="true"]{outline-color:var(--acc)}
+.pyr .c{background:var(--badbg)}.pyr .t{background:var(--warnbg)}
+.stg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:14px 0}
+.stg button{border:2px solid var(--line);background:var(--card);color:var(--ink);padding:12px;border-radius:10px;cursor:pointer;font:inherit;text-align:left}
+.stg button.yes{border-color:var(--warn);background:var(--warnbg)}
+.stg button[aria-pressed="true"]{border-color:var(--acc)}
+.stg small{display:block;color:var(--mut)}
+.rr{display:grid;grid-template-columns:150px 1fr 48px;gap:10px;align-items:center;margin:8px 0;font-size:.9rem}
+.rr input{width:100%;accent-color:var(--acc)}
+.bar{height:26px;border-radius:6px;background:var(--acc);color:var(--bg);font-weight:600;padding:0 8px;display:flex;align-items:center;transition:width .3s;min-width:44px}
+.bar.a{background:var(--mut)}.bar.b{background:var(--warn)}
+.res{display:grid;grid-template-columns:200px 1fr;gap:8px;align-items:center;margin:6px 0;font-size:.9rem}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:640px){.cols{grid-template-columns:1fr}.rr{grid-template-columns:1fr 1fr 40px}.res{grid-template-columns:1fr}h2{font-size:1.4rem}}
+.tgl{border:1px solid var(--acc);background:var(--card);color:var(--acc);padding:8px 14px;border-radius:8px;cursor:pointer;font:inherit;font-weight:600}
+.tgl.on{background:var(--acc);color:var(--bg)}
+details{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin:8px 0}
+summary{cursor:pointer;font-weight:600}
+.step{display:flex;gap:12px;margin:10px 0}
+.step i{flex:none;width:30px;height:30px;border-radius:50%;background:var(--acc);color:var(--bg);display:grid;place-items:center;font-style:normal;font-weight:800}
+.tl{border-left:3px solid var(--acc);margin:14px 0 14px 8px;padding-left:16px}
+.tl div{margin:0 0 14px;position:relative}
+.tl div:before{content:"";position:absolute;left:-23px;top:8px;width:10px;height:10px;border-radius:50%;background:var(--acc)}
+.dlg p{margin:6px 0;padding:8px 12px;border-radius:8px;background:var(--bg)}
+.pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:.78rem;font-weight:600;background:var(--accbg);color:var(--acc)}
+.pill.w{background:var(--warnbg);color:var(--warn)}.pill.b{background:var(--badbg);color:var(--bad)}
+button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+footer{max-width:960px;margin:auto;padding:0 20px 60px;color:var(--mut);font-size:.88rem}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.bar{transition:none}}
+.pgbar{position:fixed;top:0;left:0;height:3px;background:var(--acc);width:0;z-index:30}
+.thm{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:30;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:8px 14px;cursor:pointer;font:inherit;font-size:.85rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:22px}
+.stats div{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:.82rem;color:var(--mut)}
+.stats b{font:800 2.1rem "Noto Serif Armenian",serif;color:var(--acc);display:block;line-height:1.1}
+svg text{fill:var(--ink);font-family:inherit}
+.ed{stroke-linecap:round}
+.nd{cursor:pointer}.nd circle{fill:var(--warnbg);stroke:var(--warn);stroke-width:2}.nd.q circle{fill:var(--card);stroke:var(--mut);stroke-dasharray:4 3}.nd.g circle{fill:var(--accbg);stroke:var(--acc)}.nd.sel circle{stroke-width:5}.nd:focus-visible{outline:none}.nd:focus-visible circle{stroke:var(--ink);stroke-width:5}
+@keyframes dash{to{stroke-dashoffset:-24}}
+.flowl{stroke-dasharray:6 6;animation:dash 1s linear infinite}
+.flowl.off{animation:none}
+@keyframes pl{from{transform:scale(1);opacity:.8}to{transform:scale(2.6);opacity:0}}
+.pulse{fill:none;stroke:var(--warn);stroke-width:3;transform-box:fill-box;transform-origin:center;animation:pl 1.6s ease-out infinite}
+.tp{cursor:pointer}
+.ln{width:100%;height:100%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12.5px;line-height:1.3;padding:6px;border-radius:8px;background:var(--badbg);border:2px solid var(--bad);color:var(--ink)}
+.ln.ok{background:var(--accbg);border-color:var(--acc)}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.agb{display:flex;gap:3px;position:relative;margin:10px 0}
+.sg{flex:1 1 0;min-width:0;border:0;background:var(--accbg);color:var(--ink);padding:10px 4px;border-radius:6px;cursor:pointer;font:inherit;font-size:.72rem;line-height:1.25}
+.sg.on{background:var(--acc);color:var(--bg);font-weight:600}
+.mk{position:absolute;top:-4px;bottom:-4px;width:3px;background:var(--bad);border-radius:2px;pointer-events:none}
+.gl{font-size:.8rem;margin-top:8px}
+.gr{position:relative;height:24px;background:linear-gradient(90deg,var(--line) 1px,transparent 1px) 0 0/calc(100%/30) 100%;border-radius:4px}
+.gb{position:absolute;top:2px;bottom:2px;border-radius:5px;background:var(--acc);opacity:.45;cursor:pointer;border:0;padding:0}
+.gb.on{opacity:1;box-shadow:0 0 0 2px var(--ink)}
+.cur{position:absolute;top:0;bottom:0;width:2px;background:var(--bad);pointer-events:none;z-index:2}
+.gw{display:flex;font-size:.75rem;color:var(--mut)}.gw span{border-left:1px solid var(--line);padding-left:4px}
+.qc{margin:12px 0}
+.qb{display:block;width:100%;text-align:left;margin:6px 0;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:inherit;cursor:pointer}
+.qb:hover:not(:disabled){border-color:var(--acc)}
+.qb.ok{background:var(--accbg);border-color:var(--acc)}.qb.no{background:var(--badbg);border-color:var(--bad)}
+.lg{display:flex;gap:14px;flex-wrap:wrap;font-size:.82rem;margin-top:6px}.lg i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+@media(prefers-reduced-motion:reduce){.flowl,.pulse{animation:none}}
+.fs{right:118px}
+.optc{display:block;text-align:left;border:2px solid;border-radius:10px;padding:10px 12px;background:var(--card);color:var(--ink);font:inherit;cursor:pointer;opacity:.5}.optc.on{opacity:1}.optc span:first-child{float:right;font-weight:800;font-size:1.1rem}.optc small{display:block;color:var(--mut);margin-top:4px}
+.sg b{display:block;margin-top:2px}
+</style>
+</head>
+<body>
+<div class="pgbar" id="pg"></div>
+<button class="thm fs" id="fs" aria-label="Լրիվ էկրան">⛶ Լրիվ էկրան</button>
+<button class="thm" id="thm" aria-label="Փոխել թեման">◐ Թեմա</button>
+<nav id="nav"></nav>
+<header>
+<p class="pill">Նախագծերի կառավարում · Թեմա 5 · ՀՊՏՀ Գյումրու մասնաճյուղ</p>
+<h1>Դու Project Manager-ն ես</h1>
+<p>Ուսանողական թվային ծառայությունների միասնական հարթակ նախագծի թիմային խնդիրների վերլուծություն և կառավարչական լուծում։ Տեսական հիմք՝ PMBOK® Guide (6th և 7th Edition), Tuckman-ի մոդել, Lencioni-ի «Թիմի հինգ դիսֆունկցիաները»։</p>
+<div class="flow" id="flow"></div>
+<div class="stats" id="stats"></div>
+</header>
+<main>
+
+<section id="s1"><h2>1. Իրավիճակի ընթերցում</h2>
+<p class="lead">Համալսարանը ստեղծում է համակարգ, որտեղ ուսանողը մեկ վայրից ստանում է տեղեկատվություն, ներկայացնում դիմումներ, ստանում ծանուցումներ և կապ հաստատում ստորաբաժանումների հետ։ Թիմում յոթ մասնակից է՝ նախագծի ղեկավար, ՏՏ մասնագետ, UX/UI մասնագետ, մարքեթոլոգ, ֆինանսիստ, ուսումնական գործընթացի մասնագետ և ուսանող-ներկայացուցիչ։</p>
+<h3>Երկու շաբաթ անց՝ հինգ դիտարկվող փաստ</h3>
+<div class="card"><ol>
+<li>Չորս անդամ ունի չորս տարբեր առաջնահերթություն՝ տեխնոլոգիա, գործընթաց, գովազդ, բյուջե։</li>
+<li>Հանդիպումների ժամանակ անդամները չեն արտահայտում իրական տարաձայնությունները։</li>
+<li>Որոշումները հետաձգվում են։</li>
+<li>Առաջադրանքները ուշանում են։</li>
+<li>Նախագծի ղեկավարը ստիպված է միջամտել գրեթե յուրաքանչյուր հարցի։</li></ol></div>
+<h3>Թիմի անդամների դիրքորոշումները</h3>
+<h3>Կապերի քարտեզ</h3>
+<p class="lead">Փոխեք տեսքը՝ համեմատելու, թե ինչպես են հարցերը հոսում թիմում հիմա և 3 գործողությունից հետո։ Սեղմեք անդամի վրա՝ նրա դիրքորոշումը, մտահոգությունը, արդյունքը և որոշման իրավունքը տեսնելու համար։</p>
+<div class="card"><div class="btns"><button class="tgl on" id="hN" aria-pressed="true">Հիմա</button><button class="tgl" id="hG" aria-pressed="false">3 գործողությունից հետո</button></div><div id="hub"></div><div id="hubP"></div></div>
+<h3>Քարտեր</h3>
+<p class="lead">Սեղմեք քարտի վրա՝ տեսնելու հավանական մտահոգությունը և անդամի արժեքը թիմի համար։</p>
+<div class="grid" id="members"></div>
+<p style="font-size:.85rem;color:var(--mut)">«Հավանական մտահոգություն»-ը վերլուծական ենթադրություն է․ նախագծի ղեկավարը պետք է ստուգի այն անհատական զրույցներում (Գործողություն 3)։ Դեպքում դիրքորոշում չեն ներկայացրել միայն UX/UI-ը և ուսանող-ներկայացուցիչը։</p>
+<div class="note"><b>Հիմնական դիտարկում։</b> Չորս դիրքորոշումներից յուրաքանչյուրը մասնագիտորեն հիմնավորված է։ Խնդիրը բովանդակության մեջ չէ, այլ նրանում, որ թիմը չունի դրանք համեմատելու մեխանիզմ՝ ընդհանուր չափանիշներ, բաց քննարկման կանոն և որոշման ընդունման ընթացակարգ։ Սա թիմի կառավարման, ոչ թե անհատների որակավորման խնդիր է։</div>
+</section>
+
+<section id="s2"><h2>2. Թիմի զարգացման փուլը՝ Tuckman</h2>
+<div class="note w"><b>Եզրակացություն․</b> թիմը գտնվում է բախման փուլում՝ թաքնված ձևով։</div>
+<p class="lead">Ընտրեք փուլը՝ տեսնելու, համընկնո՞ւմ է արդյոք այն դեպքի փաստերին։</p>
+<div class="card" id="tuck"></div>
+<div class="stg" id="stg"></div>
+<div class="card" id="stgOut"></div>
+<div class="card"><h3>Լուռ բախում</h3>
+<p>Բախման փուլը պարտադիր ձախողում չէ․ տարբեր մասնագիտական կարծիքների բացահայտումը կարող է բերել ավելի լավ լուծման։ Վտանգը կոնֆլիկտի գոյությունը չէ, այլ դրա <b>չկառավարումը</b>։ Այս թիմում հակասությունները չեն ասվում հանդիպմանը, ուստի չեն լուծվում և թույլ չեն տալիս անցնել նորմավորում։ Սա ավելի վտանգավոր է, քան բաց վեճը, քանի որ խնդիրը երևում է միայն ուշացումների տեսքով։</p>
+<p><b>Նախագծի ղեկավարի շեշտադրումը այս փուլում՝</b> կոնֆլիկտի կառավարում, լսում, դերերի հստակեցում։ Հենց դրանց վրա են կառուցված երեք գործողությունները։</p></div>
+</section>
+
+<section id="s3"><h2>3. Lencioni-ի դիսֆունկցիաները</h2>
+<p class="lead">Ընտրված են երկուսը՝ <b>կոնֆլիկտի վախ</b> (ամենատեսանելին) և <b>վստահության բացակայություն</b> (հիմքում ընկած պատճառը)։ Սեղմեք բուրգի մակարդակի վրա։</p>
+<div class="pyr" id="pyr"></div>
+<div class="card" id="pyrOut"></div>
+<div class="note">Ստորին մակարդակները (վստահություն, կոնֆլիկտ) պայմանավորում են վերինները։ Միայն ուշացումները շտկելը բավարար չէ․ եթե հիմքի խնդիրը չլուծվի, այն կկրկնվի։</div>
+</section>
+
+<section id="s4"><h2>4. Պատճառահետևանքային շղթա</h2>
+<p class="lead"><b>Դիսֆունկցիա → Վարքագիծ → Խնդիր → Նախագծի հետևանք</b></p>
+<div class="card"><div class="btns"><button class="tgl" id="lb" aria-pressed="false">Կոտրել շրջանը (Գործողություն 1–3)</button><button class="tgl on" id="la" aria-pressed="true">Շարժում՝ միացված</button></div><div id="loop"></div></div>
+<div class="tabs" id="chainTabs" role="tablist"></div>
+<div class="panel" id="chainOut"></div>
+<div class="note b"><b>Ինքնուժեղացող շրջան։</b> Նախագծի ղեկավարը միջամտում է ամեն հարցի → անդամները սովորում են վեճերը տանել նախագծի ղեկավարին, ոչ միմյանց → նվազում են վստահությունն ու սեփականության զգացումը → առաջանում են նոր չլուծված տարաձայնություններ → նախագծի ղեկավարը ստիպված է էլ ավելի շատ միջամտել։</div>
+<div class="card"><b>Ամփոփ գրառում․</b> Վստահության պակաս → խնդիրների քողարկում → ուշ բացահայտում → ուշ միջամտություն → ժամանակի / ծախսի աճ → արդյունքի վատացում։</div>
+</section>
+
+<section id="s5"><h2>5. Նախագծի ղեկավարի երեք գործողությունը հիմա</h2>
+<p class="lead">Գործողությունները միաժամանակ լուծում են վստահության և կոնֆլիկտի խնդիրը՝ առանց մանրամասն վերահսկման։ Նախագծի ղեկավարի դերը տեղափոխվում է «հրդեհ մարողից» դեպի վարող և մարզիչ։</p>
+<div class="tabs" id="actTabs" role="tablist"></div>
+<div class="panel" id="actOut"></div>
+<h3 style="margin-top:28px">Դերերը ըստ արդյունքի (թիմային պայմանագրի մաս)</h3>
+<div class="tw"><table id="roles"></table></div>
+</section>
+
+<section id="s6"><h2>6. Կոնֆլիկտը՝ անձնականից մասնագիտական</h2>
+<div class="note"><b>Ընտրված կոնֆլիկտ․</b> «Տեխնոլոգիան առաջին» (ՏՏ) ընդդեմ «Գործընթացն առաջին» (ուսումնական գործընթացի մասնագետ)։ Այն գտնվում է կրիտիկական ուղու վրա․ որոշում է, թե ինչից է սկսվում աշխատանքը, և ազդում է բյուջեի ու գովազդի ժամկետների վրա։</div>
+<h3>Նախագծի ղեկավարի միջամտությունը՝ 5 քայլ</h3>
+<div id="steps"></div>
+<h3 style="margin-top:28px">Տարբերակների համեմատություն (ինտերակտիվ)</h3>
+<p class="lead">Թվերը օրինակելի են (սանդղակ 1–5)։ Փոխեք չափանիշների կշիռները և տեսեք՝ փոխվո՞ւմ է արդյոք առաջատար տարբերակը։ Տարբերակ C-ն զուգահեռ 2-շաբաթյա ուսումնասիրություն է՝ 3–5 առաջնահերթ ծառայության համար միաժամանակ գործընթացի քարտեզագրում և տեխնիկական ստուգում։</p>
+<div class="card" id="mx"></div>
+<div class="card"><h3>Գնահատականների ռադար</h3><p class="lead" style="font-size:.9rem">Սեղմեք առանցքի կամ կետի վրա՝ չափանիշի մանրամասները տեսնելու և միավորները փոխելու համար։ Սեղմեք տարբերակի քարտի վրա՝ այն թաքցնելու կամ ցույց տալու համար։</p><div id="radar"></div><div class="grid" id="radarL" style="margin-top:12px"></div><div id="radarP" style="margin-top:12px"></div></div>
+<div class="note"><b>Առաջարկվող որոշում՝ C։</b> Մինչև առաջին ծառայության պատրաստվածությունը՝ միայն տեղեկացնող հաղորդակցություն՝ առանց հնարավորությունների խոստման։ Լայն գովազդը կապվում է հանգրվանի հետ՝ «առաջին ծառայությունը աշխատում է»։ Ֆինանսիստը ստանում է ուսումնասիրության հստակ բյուջեի շրջանակ։</div>
+<h3>Ձևակերպումների վերափոխում</h3>
+<button class="tgl" id="tg" aria-pressed="false">Ցույց տալ մասնագիտական տարբերակը</button>
+<div class="tw"><table id="refr"></table></div>
+<h3>Նախագծի ղեկավարի երկխոսության օրինակ</h3>
+<div class="card dlg">
+<p><b>Նախագծի ղեկավար՝</b> Լսեցի երկու դիրքորոշում։ Խնդրում եմ՝ ոչ թե համոզել միմյանց, այլ ասել՝ ո՞ր տվյալն է քեզ հիմք տալիս այս տարբերակի համար։</p>
+<p><b>ՏՏ՝</b> Եթե գործող համակարգերը չեն աջակցում API-ին, ապա ցանկացած գործընթաց ստիպված կլինենք ձեռքով ինտեգրել։</p>
+<p><b>Գործընթացների մասնագետ՝</b> Եթե չհստակեցնենք՝ ով և ինչ ժամկետում է դիմումը հաստատում, ավտոմատացնելու ոչինչ չի լինի։</p>
+<p><b>Նախագծի ղեկավար՝</b> Երկու պատճառաբանությունն էլ պետք է ստուգել։ Ի՞նչ կասեք, եթե առաջին երկու շաբաթը երկուսն էլ ստուգենք նույն 3–5 ծառայության վրա, և որոշումը կայացնենք այդ տվյալներով։</p></div>
+<div class="note"><b>Արդյունք։</b> Կոնֆլիկտը դադարում է լինել երկու մարդու պայքար և դառնում է համատեղ խնդիր՝ հստակ չափանիշներով և ժամկետով։ Տարբեր տեսակետներ → կառուցված քննարկում → այլընտրանքների համեմատություն → հիմնավորված որոշում։</div>
+</section>
+
+<section id="s7"><h2>7. Թիմային պայմանագրի կանոնը</h2>
+<div class="card"><h3>«Բաց տարաձայնություն՝ հստակ որոշում՝ ընդհանուր պարտավորվածություն»</h3>
+<ol>
+<li>Յուրաքանչյուր էական որոշման ժամանակ անդամը հանդիպմանն արտահայտում է դիրքորոշումը և նշում, թե որ փաստն ու չափանիշն է այն աջակցում։ <b>Լռությունը համաձայնություն չէ․</b> Նախագծի ղեկավարը հարցը վարում է շրջանաձև։</li>
+<li>Քննարկվում են գաղափարները և տվյալները, ոչ թե անձը։ «Դու չես հասկանում»-ը փոխարինվում է «Ո՞ր տվյալներն են աջակցում…» հարցով։</li>
+<li>Որոշումը կայացվում է համաձայնեցված չափանիշներով՝ նույն հանդիպմանը կամ ոչ ուշ, քան <b>3 աշխատանքային օրում</b>։ Եթե 2 քննարկումից հետո համաձայնություն չկա, հարցը փոխանցվում է ղեկավար կոմիտեին/հովանավորին։</li>
+<li>Որոշումից հետո բոլորն աջակցում են՝ նույնիսկ եթե դեմ էին։ Որոշումը և առարկությունները գրանցվում են որոշումների մատյանում։ Հետագայում առարկություններ ընդունվում են միայն նոր տեղեկատվության դեպքում։</li>
+<li>Կանոնը վերանայվում է յուրաքանչյուր 4 շաբաթը մեկ և նախագծի փուլերի անցման ժամանակ։</li></ol></div>
+<div class="tw"><table id="rule"></table></div>
+<p><b>Չափման ցուցանիշներ՝</b> որոշման ընդունման միջին ժամկետ, որոշումների մատյանում առարկությունների գրանցման տոկոսը էական որոշումներում, նախագծի ղեկավարին փոխանցվող հարցերի քանակ։</p>
+</section>
+
+<section id="s8"><h2>8. Կապը տեսական հասկացությունների հետ</h2>
+<p class="lead">Առաջադրանքը պահանջում է առնվազն երեք հասկացություն․ օգտագործված են ութը։ Բացեք յուրաքանչյուրը։</p>
+<div id="theory"></div>
+</section>
+
+<section id="s9"><h2>9. 30-օրյա պլան և ցուցանիշներ</h2>
+<div class="card"><b>Ժամանակացույց</b> <span class="lead" style="font-size:.85rem">(սահողը՝ օրը, սեղմեք գոտու վրա՝ մանրամասն)</span><div class="gw" id="gw"></div><div id="gantt"></div><input type="range" id="gday" min="1" max="30" value="1" style="width:100%;accent-color:var(--acc);margin-top:10px" aria-label="Օր"><div id="gi"></div></div>
+<div class="tl" id="plan"></div>
+<h3>Հաջողության ցուցանիշներ</h3>
+<div class="tw"><table id="kpi"></table></div>
+<p style="font-size:.85rem;color:var(--mut)">Նպատակային արժեքները առաջարկվող են և կարող են ճշգրտվել թիմի հետ։</p>
+<h3>Մոտեցման ռիսկերը</h3>
+<div id="risks"></div>
+</section>
+
+<section id="s10"><h2>10. Սպասվող արդյունք և եզրակացություն</h2>
+<div class="card"><ul>
+<li>Թիմի անցում <b>Բախում → նորմավորում</b>․ տարաձայնությունները արտահայտվում են բաց և լուծվում համաձայնեցված կանոններով։</li>
+<li>Որոշումների և առաջադրանքների ժամկետների բարելավում։</li>
+<li>Նախագծի ղեկավարի դերի տեղափոխում մանրամասն միջամտությունից դեպի վարող և մարզիչ։</li>
+<li>Հիմք բարձր արդյունավետ թիմի համար՝ ընդհանուր նպատակ, հստակ դերեր, վստահություն, բաց հաղորդակցություն, կառուցողական կոնֆլիկտ, փոխադարձ հաշվետվողականություն։</li></ul></div>
+<div class="note"><b>Ամփոփում։</b> Դեպքում ոչ թե «վատ մարդիկ» կամ «վատ պլան» են, այլ թիմ, որը դեռ չունի իր տարբեր կարծիքները համեմատելու և որոշման վերածելու մեխանիզմ։ Նախագծի ղեկավարի խնդիրը կոնֆլիկտը վերացնելը չէ, այլ այն կառուցողական դարձնելը։</div>
+<h3>Օգտագործված աղբյուրներ</h3>
+<ul>
+<li>Նախագծերի կառավարում․ Լեկցիա 5՝ Նախագծային թիմերի կառավարում (դասընթացի նյութ)։</li>
+<li>PMI. PMBOK® Guide, Sixth Edition, 2017 և Seventh Edition, 2021։</li>
+<li>PMI. Project Performance Domains, Team Performance Domain, 2021։</li>
+<li>Tuckman, B. W. Developmental Sequence in Small Groups. Psychological Bulletin, 1965։</li>
+<li>Lencioni, P. The Five Dysfunctions of a Team. Jossey-Bass, 2002։</li></ul>
+</section>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const secs=[["s1","Իրավիճակ"],["s2","Tuckman"],["s3","Lencioni"],["s4","Շղթա"],["s5","3 գործողություն"],["s6","Կոնֆլիկտ"],["s7","Պայմանագիր"],["s8","Տեսություն"],["s9","30 օր"],["s10","Եզրակացություն"]];
+$("nav").innerHTML=secs.map(s=>`<a href="#${s[0]}" data-s="${s[0]}">${s[1]}</a>`).join("");
+$("flow").innerHTML=["Իրավիճակ","Թիմի խնդիր","Tuckman-ի փուլ","Դիսֆունկցիա","Պատճառահետևանքային վերլուծություն","Նախագծի ղեկավարի 3 գործողություն","Սպասվող արդյունք"].map((t,i)=>`<button data-go="${["s1","s1","s2","s3","s4","s5","s10"][i]}">${t}</button>`).join("");
+$("flow").onclick=e=>{const g=e.target.dataset.go;if(g)$(g).scrollIntoView()};
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("on",a.dataset.s===e.target.id))}),{rootMargin:"-30% 0px -60% 0px"});
+secs.forEach(s=>io.observe($(s[0])));
+
+const mem=[
+["ՏՏ մասնագետ","Նախ որոշել տեխնիկական հնարավորությունները։","Ստեղծել համակարգ, որը չի ինտեգրվում գործող տվյալների բազաների հետ կամ խախտում է անվտանգությունը։","Իրագործելիության իրական սահմանափակումների իմացություն։"],
+["Ուսումնական գործընթացի մասնագետ","Համակարգը կառուցել գործող գործընթացների հիման վրա։","Սխալ կամ չհստակեցված գործընթացի ավտոմատացում, կանոնակարգերի խախտում։","Դիմումների, ծանուցումների և ստորաբաժանումների կապի իրական կանոնների իմացություն։"],
+["Մարքեթոլոգ","Անմիջապես սկսել գովազդը։","Տեսանելի արդյունքի բացակայություն, ուսանողների հետաքրքրության կորուստ, ժամկետի ճնշում։","Ուսանողների հետ հաղորդակցության ուղիների իմացություն։"],
+["Ֆինանսիստ","Զգուշացնում է բյուջեի սահմանափակման մասին։","Բյուջեի գերազանցում և անձնական պատասխանատվություն։","Իրատեսական շրջանակների ապահովում։"],
+["UX/UI մասնագետ","Դեպքում դիրքորոշում չի ներկայացված։","Օգտատերերի հետազոտությունը և դիզայնը կարող են «գալ ուշ» ու դառնալ ձևական։","Ուսանողի փորձառության պաշտպանություն։"],
+["Ուսանող-ներկայացուցիչ","Դեպքում դիրքորոշում չի ներկայացված։","Ձայնը կարող է չլսվել ավելի փորձառու մասնագետների կողքին։","Վերջնական օգտատիրոջ ձայն և պահանջների վավերացում։"]];
+$("members").innerHTML=mem.map(m=>`<button class="mem" aria-expanded="false"><b>${m[0]}</b>${m[1]}<span><u>Հավանական մտահոգություն․</u> ${m[2]}<br><br><u>Արժեքը թիմի համար․</u> ${m[3]}</span></button>`).join("");
+$("members").onclick=e=>{const b=e.target.closest(".mem");if(b)b.setAttribute("aria-expanded",b.getAttribute("aria-expanded")!=="true")};
+
+const stg=[
+["Ձևավորում","Մասամբ","Ծանոթացում, նպատակների և դերերի պարզում։","Նպատակը հայտնի է, սակայն դերերը և աշխատանքի հաջորդականությունը չեն հստակեցված։ Թիմն արդեն անցել է ծանոթացումը, քանի որ անդամները պաշտպանում են հստակ դիրքորոշումներ։",""],
+["Բախում","Այո","Տարբեր կարծիքներ, դերերի և աշխատանքի շուրջ հակասություններ։","Չորս անդամ պաշտպանում է չորս տարբեր «առաջին քայլ»։ Աշխատանքի հաջորդականության շուրջ հակասությունը ակնհայտ է, իսկ դրա լուծման մեխանիզմը բացակայում է։","yes"],
+["Նորմավորում","Ոչ","Ընդհանուր կանոններ, վստահություն, համագործակցության ձևեր։","Ընդհանուր կանոններ չկան՝ տարաձայնությունները չեն արտահայտվում, որոշումները հետաձգվում են։ Վստահության նշաններ չեն երևում։",""],
+["Արդյունավետ աշխատանք","Ոչ","Ինքնուրույն համագործակցություն և արդյունքի վրա կենտրոնացում։","Նախագծի ղեկավարը միջամտում է գրեթե ամեն հարցում, առաջադրանքները ուշանում են․ թիմը ինքնուրույն չի գործում։",""]];
+$("stg").innerHTML=stg.map((s,i)=>`<button class="${s[4]}" aria-pressed="false" data-i="${i}"><b>${s[0]}</b><small>Համընկնու՞մ է՝ ${s[1]}</small></button>`).join("");
+function showStg(i){const s=stg[i];document.querySelectorAll("#stg button").forEach((b,j)=>b.setAttribute("aria-pressed",i===j));$("stgOut").innerHTML=`<h3>${s[0]} <span class="pill ${s[4]?"w":""}">${s[1]}</span></h3><p><b>Փուլի նշանները (դասախոսություն)․</b> ${s[2]}</p><p><b>Հիմնավորում դեպքի փաստերով․</b> ${s[3]}</p>`}
+$("stg").onclick=e=>{const b=e.target.closest("button");if(b)showStg(+b.dataset.i)};showStg(1);
+
+const pyr=[
+["Վստահության բացակայություն","t","Հիմնական պատճառ","Վստահությունը թույլ է տալիս հայտնել խնդիրը, սխալը, ռիսկը կամ այլ կարծիքը՝ առանց անձնական հարձակման վախի։ Անդամների լռությունը հուշում է, որ նրանք բաց տարաձայնությունն անվտանգ չեն համարում։ Երկու շաբաթը կարճ է վստահություն կառուցելու համար, իսկ թիմային պայմանագրի բացակայությունը ավելացնում է անորոշությունը։"],
+["Կոնֆլիկտի վախ","c","Հիմնական՝ տեսանելի ախտանիշ","Դեպքում համընկնում է բառացի․ անդամները չեն արտահայտում իրական տարաձայնությունները։ Չորս դիրքորոշումները անհամատեղելի են (եթե գովազդը սկսվի հիմա, ֆինանսիստի զգուշացումն ու ՏՏ-ի պահանջը անտեսվում են), այսինքն՝ տարաձայնություն կա, բայց չի քննարկվում։ Լռությունը համաձայնություն չէ։"],
+["Նվիրվածության պակաս","","Հետևանք","Որոշումները հետաձգվում են․ առանց բաց քննարկման որոշումների նկատմամբ նվիրվածություն չի առաջանում։"],
+["Հաշվետվողականության խուսափում","","Հետևանք","Առաջադրանքները ուշանում են, և չկա նշան, որ անդամները միմյանցից պահանջում են կատարում։ Հավանաբար նախագծի ղեկավարը մնում է միակ «վերահսկիչը»։"],
+["Արդյունքների նկատմամբ անուշադրություն","","Ռիսկ (տվյալները բավարար չեն)","Յուրաքանչյուրը պաշտպանում է իր ֆունկցիայի առաջնահերթությունը։ Սա կարող է նշանակել՝ ստորաբաժանման շահը ընդհանուր նպատակից վեր է, սակայն դա պետք է ստուգել։"]];
+$("pyr").innerHTML=pyr.map((p,i)=>`<button class="${p[1]}" style="width:${100-(4-i)*0+0-(i*8)}%" aria-pressed="false" data-i="${i}">${p[0]}</button>`).join("");
+function showP(i){const p=pyr[i];document.querySelectorAll("#pyr button").forEach((b,j)=>b.setAttribute("aria-pressed",i===j));$("pyrOut").innerHTML=`<h3>${p[0]} <span class="pill ${p[1]==="c"?"b":p[1]==="t"?"w":""}">${p[2]}</span></h3><p>${p[3]}</p>`}
+$("pyr").onclick=e=>{const b=e.target.closest("button");if(b)showP(+b.dataset.i)};showP(0);
+
+const chain=[
+["Վստահության բացակայություն","Անդամները չեն ասում իրական կասկածները և սահմանափակումները․ անհամաձայնությունը պահում են իրենց մոտ կամ փոխանցում են միայն նախագծի ղեկավարին։","Իրական տարաձայնությունները և ռիսկերը չեն հայտնվում ընդհանուր սեղանին․ թիմը աշխատում է թերի տեղեկատվությամբ։","Ռիսկերի ուշ բացահայտում (օր․ բյուջեի կամ տեխնիկական սահմանափակում)։ Ուշ միջամտություն → ժամանակի և ծախսի աճ, վերամշակում։"],
+["Կոնֆլիկտի վախ","Հանդիպումներին լռում են կամ ձևականորեն համաձայնում․ տարաձայնությունն արտահայտվում է անուղղակիորեն՝ հետաձգմամբ, «չհասցնելով»։","Չորս առաջնահերթությունները չեն համեմատվում, ընդհանուր հաջորդականություն չկա․ որոշումները հետաձգվում են, առաջադրանքները ուշանում են։","Ժամկետի խախտում, աշխատանքների դադար։ Սխալ հաջորդականության ռիսկ (գովազդ՝ դեռ չստեղծված համակարգի մասին)՝ ուսանողների սպասումների և հեղինակության վտանգ։"],
+["Երկուսի համակցված էֆեկտ","Անդամները հակասությունները բերում են նախագծի ղեկավարի մոտ՝ միմյանց հետ լուծելու փոխարեն։","Նախագծի ղեկավարը դառնում է «խցան» և միջամտում է գրեթե ամեն հարցի։","Թիմի ինքնուրույնության նվազում, մանրամասն վերահսկման ռիսկ, նախագծի ղեկավարի ծանրաբեռնվածություն, նախագծի ընդհանուր կառավարման անկում։"]];
+const lab=["Վարքագիծ","Խնդիր","Հետևանք նախագծի համար"];
+$("chainTabs").innerHTML=chain.map((c,i)=>`<button role="tab" aria-selected="false" data-i="${i}">${c[0]}</button>`).join("");
+function showC(i){document.querySelectorAll("#chainTabs button").forEach((b,j)=>b.setAttribute("aria-selected",i===j));$("chainOut").innerHTML="<dl>"+lab.map((l,k)=>`<dt>${l}</dt><dd>${chain[i][k+1]}</dd>`).join("")+"</dl>"}
+$("chainTabs").onclick=e=>{const b=e.target.closest("button");if(b)showC(+b.dataset.i)};showC(0);
+
+const act=[
+["1. Հավասարեցման աշխատաժողով",[["Ինչ","2-ժամյա վարվող քննարկում, որի նպատակն է ոչ թե «ո՞վ է իրավացի», այլ «ինչո՞վ և ինչ հերթականությամբ ենք սկսում»։"],["Երբ / ով","Մեկնարկ՝ 3 աշխատանքային օրվա ընթացքում։ Անցկացնում է նախագծի ղեկավարը որպես վարող, մասնակցում են բոլոր 7 անդամները։"],["Օրակարգ","0:00–0:15 ընդհանուր նպատակ և հաջողության չափանիշներ, շրջանակավորում՝ «բոլոր չորս դիրքորոշումները արժեքավոր են»։<br>0:15–0:45 շրջանաձև խոսք․ (ա) իմ առաջնահերթությունը, (բ) ինչից եմ վախենում, եթե հաշվի չառնվի, (գ) ինչ եմ ակնկալում մյուսներից։ UX/UI-ին և ուսանողին ուղղակի հրավիրում են խոսել։<br>0:45–1:15 որոշման չափանիշների և կշիռների համաձայնեցում։<br>1:15–1:45 կախվածությունների քարտեզ և առաջին 6 շաբաթի հաջորդականություն։<br>1:45–2:00 որոշումների, պատասխանատուների և ժամկետների գրանցում։"],["Անվտանգ արտահայտվելու միջոցներ","Լուռ գրավոր գրառումներ՝ բոլորը գրում են նախ։ Ռոտացիոն «Հակափաստարկող» դեր, որպեսզի առարկելը դառնա խաղի կանոն, ոչ թե հարձակում։"],["Սպասվող արդյունք","Համատեղ առաջնահերթություններ, համաձայնեցված հաջորդականություն, առաջին անգամ բացահայտված տարաձայնություններ։ Սկսվում է բախում → նորմավորում։"],["Տեսական կապ","Թիմի զարգացում, կոնֆլիկտի կառավարում, Tuckman, նախագծի ղեկավարի վարողի դեր։"]]],
+["2. Թիմային պայմանագիր",[["Ինչ","Թիմային պայմանագիր, որը պատասխանում է՝ «Ի՞նչ ենք փորձում միասին իրականացնել» և «Ինչպե՞ս ենք պայմանավորվում աշխատել»։ Աշխատանքային համաձայնություն, ոչ թե ձևական թուղթ։"],["Երբ / ով","Առաջին աշխատաժողովից հետո՝ մեկ շաբաթվա ընթացքում, 60-րոպեանոց նիստ։ Նախագիծը պատրաստում է նախագծի ղեկավարը, բովանդակությունը ձևավորում է թիմը (համատեղ ստեղծումը ապահովում է սեփականություն)։"],["Բովանդակություն","Առաքելություն և նպատակ, դերեր՝ կապված արդյունքի (առաքվող արդյունք) հետ, որոշումների կանոններ (բաժին 7), հաղորդակցության կանոններ, կոնֆլիկտների լուծման կարգ, աշխատանքային կանոններ, հաշվետվողականություն։"],["Սպասվող արդյունք","Ընդհանուր կանոններ, որոնք թույլ են տալիս բաց արտահայտվել (վստահության հիմք), և հստակ դերեր, որոնք կանխում են կրկնությունը կամ բացթողումը։"],["Տեսական կապ","Թիմային պայմանագիր, Թիմի զարգացում, վստահություն, դերի անորոշության շղթա (դերի անորոշություն → պատասխանատվության անորոշություն → կրկնություն/բացթողում → ուշացում)։"]]],
+["3. Թիմի կառավարում",[["Ինչ","Թեթև, բայց հստակ ենթակառուցվածք՝ որոշումների արագ ընդունման և կատարման համար, առանց «ամեն հարցին միջամտելու»։"],["Երբ / ով","Սկսել անմիջապես (օր 1–5), շարունակել շաբաթական ռեժիմով։ Պատասխանատու է նախագծի ղեկավարը։"],["Տարրեր","<b>Անհատական զրույցներ</b> (20–30 րոպե) յուրաքանչյուրի հետ․ հատկապես UX/UI-ի և ուսանող-ներկայացուցչի։<br><b>Որոշումների մատյան՝</b> որոշում, պատասխանատու, ամսաթիվ, հիմնավորում, արտահայտված առարկություններ։<br><b>Որոշման վերջնաժամկետներ՝</b> յուրաքանչյուր բաց հարց ստանում է պատասխանատու և ժամկետ (մինչև 5 աշխատանքային օր)։<br><b>Շաբաթական 15-րոպեանոց կարճ հանդիպում՝</b> ի՞նչ եմ պարտավորվել, ինչ է խանգարում։<br><b>Բյուջեի միջանցք՝</b> ֆինանսիստի և հովանավորի հետ գումարային շրջանակ, որպեսզի բյուջեն լինի պարամետր, ոչ թե վետո։<br><b>Վերադասին փոխանցման ուղի՝</b> 2 քննարկումից հետո համաձայնության բացակայության դեպքում՝ ղեկավար կոմիտե/հովանավոր։"],["Ինչու սա մանրամասն վերահսկում չէ","Նախագծի ղեկավարը հետևում է որոշումներին և պարտավորություններին, ոչ թե թե ինչպես են մասնագետները աշխատում։ Թիմի հասունացմանը զուգընթաց հսկողությունը նվազում է, մարզումն ու լիազորումը՝ աճում։"],["Սպասվող արդյունք","Որոշումների արագացում, նախագծի ղեկավարի ծանրաբեռնվածության նվազում, տեսանելի հաշվետվողականություն։"],["Տեսական կապ","Թիմի կառավարում (կատարողականի հետևում, հետադարձ կապ, խնդիրների լուծում, կոնֆլիկտի կառավարում), Կառավարիչ → Վարող/մարզիչ։"]]]];
+$("actTabs").innerHTML=act.map((a,i)=>`<button role="tab" aria-selected="false" data-i="${i}">${a[0]}</button>`).join("");
+function showA(i){document.querySelectorAll("#actTabs button").forEach((b,j)=>b.setAttribute("aria-selected",i===j));$("actOut").innerHTML="<dl>"+act[i][1].map(r=>`<dt>${r[0]}</dt><dd>${r[1]}</dd>`).join("")+"</dl>"}
+$("actTabs").onclick=e=>{const b=e.target.closest("button");if(b)showA(+b.dataset.i)};showA(0);
+const tbl=(id,h,rows)=>$(id).innerHTML="<tr>"+h.map(x=>`<th>${x}</th>`).join("")+"</tr>"+rows.map(r=>"<tr>"+r.map((c,i)=>`<td>${i?c:"<b>"+c+"</b>"}</td>`).join("")+"</tr>").join("");
+tbl("roles",["Դեր","Պատասխանատու է (առաքվող արդյունք)","Որոշման իրավունք"],[
+["ՏՏ մասնագետ","Տեխնիկական իրագործելիության եզրակացություն, ճարտարապետության նախագիծ, ինտեգրացիաներ։","Տեխնիկական լուծումներ՝ համաձայնեցված չափանիշներով։"],
+["Ուսումնական գործընթացի մասնագետ","Առաջնահերթ ծառայությունների ներկա և ցանկալի վիճակի գործընթացների քարտեզներ, կանոնակարգային պահանջներ։","Գործընթացի կանոններ և սահմանափակումներ։"],
+["UX/UI մասնագետ","Օգտատերերի հետազոտություն, նախատիպեր, օգտագործելիության թեստեր։","Փորձառության լուծումներ։"],
+["Մարքեթոլոգ","Հաղորդակցության պլան, գործարկման քարոզարշավ՝ համաձայնեցված արտադրանքի պատրաստվածության հետ։","Հաղորդակցության բովանդակություն և ժամկետներ։"],
+["Ֆինանսիստ","Բյուջեի բազային պլան, ծախսերի հսկողություն, «բյուջեի միջանցք»։","Բյուջեի շրջանակներ։"],
+["Ուսանող-ներկայացուցիչ","Պահանջների վավերացում ուսանողների տեսանկյունից, մասնակցություն թեստերին։","Ուսանողի կարծիքի ներկայացում որոշումներում։"],
+["Նախագծի ղեկավար","Ինտեգրում, ժամանակացույց, որոշումների վարում, վերադասին փոխանցում։","Գործընթացի և հաջորդականության համակարգում։"]]);
+
+const st=[["Անձը առանձնացնել խնդրից","Վերաձևակերպել․ «Երկուսդ էլ նախագիծը պաշտպանում եք տարբեր ձախողումներից․ ՏՏ-ն՝ չիրագործվող լուծումից, գործընթացների մասնագետը՝ սխալ գործընթացի ավտոմատացումից։ Երկու վտանգներն էլ իրական են»։"],["Ձևակերպել ընդհանուր հարց","«Ի՞նչ տեղեկատվություն է մեզ պետք, որպեսզի որոշենք, թե որ ծառայություններից սկսենք, որ լինի և՛ իրագործելի, և՛ համապատասխանի իրական գործընթացներին»։"],["Պահանջել տվյալներ և չափանիշներ","«Ո՞ր տվյալներն են աջակցում այս տարբերակին»։ Յուրաքանչյուրը նաև նշում է՝ ինչ տվյալի դեպքում կփոխեր դիրքորոշումը։"],["Ստեղծել այլընտրանքներ","A՝ տեխնոլոգիան առաջին։ B՝ գործընթացը առաջին։ C՝ զուգահեռ 2-շաբաթյա ուսումնասիրություն 3–5 առաջնահերթ ծառայության համար։"],["Համեմատել չափանիշներով և որոշել","Գնահատման մատրից, գրանցում որոշումների մատյանում, բոլորի պարտավորվածություն։"]];
+$("steps").innerHTML=st.map((s,i)=>`<div class="step"><i>${i+1}</i><div><b>${s[0]}</b><br>${s[1]}</div></div>`).join("");
+
+const cr=[["Ռիսկի նվազեցում",30,[3,3,5]],["Արժեք ուսանողի համար",25,[2,3,4]],["Ժամկետ",20,[4,2,4]],["Բյուջե",15,[3,4,4]],["Թիմի ընդունելիություն",10,[2,3,5]]];
+const W=cr.map(c=>c[1]);
+$("mx").innerHTML='<div id="rr"></div><hr style="border:0;border-top:1px solid var(--line);margin:14px 0"><div id="rs"></div><p id="rm" style="margin:10px 0 0"></p><button class="tgl" id="rst" style="margin-top:8px">Վերականգնել 30/25/20/15/10</button>';
+$("rr").innerHTML=cr.map((c,i)=>`<div class="rr"><label for="w${i}">${c[0]}</label><input type="range" id="w${i}" min="0" max="60" value="${c[1]}" data-i="${i}"><span id="v${i}">${c[1]}%</span></div>`).join("");
+const opt=["A՝ տեխնոլոգիա առաջին","B՝ գործընթաց առաջին","C՝ զուգահեռ ուսումնասիրություն"];
+function calc(){const tot=W.reduce((a,b)=>a+b,0)||1;const sc=[0,1,2].map(k=>cr.reduce((a,c,i)=>a+W[i]*c[2][k],0)/tot);const mx=Math.max(...sc);
+$("rs").innerHTML=sc.map((s,k)=>`<div class="res"><span>${opt[k]}</span><div class="bar ${["a","b",""][k]}" style="width:${s/5*100}%">${s.toFixed(2)}</div></div>`).join("");
+$("rm").innerHTML=`Կշիռների գումարը՝ <b>${tot}%</b> (հաշվարկը նորմավորվում է)։ Առաջատար՝ <b>${opt[sc.indexOf(mx)]}</b>։`}
+$("rr").oninput=e=>{const i=+e.target.dataset.i;W[i]=+e.target.value;$("v"+i).textContent=W[i]+"%";calc()};
+$("rst").onclick=()=>{cr.forEach((c,i)=>{W[i]=c[1];$("w"+i).value=c[1];$("v"+i).textContent=c[1]+"%"});calc()};calc();
+
+const rf=[["«Դու չես հասկանում համակարգը»։","«Ո՞ր տեխնիկական սահմանափակումն է խոչընդոտում ընթացիկ գործընթացով սկսելուն, և ինչպե՞ս կարող ենք այն ստուգել մեկ շաբաթում»։"],["«Ձեր գործընթացները հնացած են»։","«Գործընթացի ո՞ր քայլերն են դիմումների մշակման ժամանակ ամենամեծ ուշացումները առաջացնում, և ինչպե՞ս կարող է համակարգը դրանք փոխել»։"],["«ՏՏ-ն ուսանողների մասին չի մտածում»։","«Ո՞ր ծառայություններն են ուսանողների համար ամենակարևորը, և ի՞նչ տվյալներ ունենք դրանց մասին»։"]];
+let pro=false;
+function drawR(){tbl("refr",[pro?"Մասնագիտական / կառուցողական":"Անձնական / ապակառուցողական"],rf.map(r=>[r[pro?1:0]]));$("refr").querySelectorAll("td").forEach(t=>t.style.background=pro?"var(--accbg)":"var(--badbg)")}
+$("tg").onclick=()=>{pro=!pro;$("tg").classList.toggle("on",pro);$("tg").setAttribute("aria-pressed",pro);$("tg").textContent=pro?"Ցույց տալ անձնական տարբերակը":"Ցույց տալ մասնագիտական տարբերակը";drawR()};drawR();
+
+tbl("rule",["Կանոնի տարր","Ինչ խնդիր է կանխում","Ինչ դիսֆունկցիա է չեզոքացնում"],[
+["Շրջանաձև խոսք, լռությունը ≠ համաձայնություն","Թաքնված տարաձայնություններ։","Կոնֆլիկտի վախ։"],
+["Քննարկում տվյալների և չափանիշների մակարդակում","Անձնական հակասության վերածում։","Վստահության բացակայություն։"],
+["3 օրվա վերջնաժամկետ և վերադասին փոխանցում","Որոշումների անվերջ հետաձգում, նախագծի ղեկավարի «խցան»։","Նվիրվածության պակաս։"],
+["«Առարկիր և պարտավորվիր» + Որոշումների մատյան","«Լուռ դիմադրություն», հարցի վերաբացում։","Նվիրվածության պակաս, հաշվետվողականության խուսափում։"]]);
+
+const th=[["Tuckman-ի մոդել","Թիմի վիճակը՝ բախում (թաքնված), հիմնավորված չորս անհամատեղելի առաջնահերթություններով և ձգձգվող որոշումներով։ Նախագծի ղեկավարի գործողությունները համապատասխանում են փուլի շեշտադրումներին։"],["Lencioni-ի դիսֆունկցիաներ","Կոնֆլիկտի վախը և վստահության բացակայությունը՝ որպես ախտանիշ և պատճառ։ Նվիրվածության պակասն ու հաշվետվողականության խուսափումը՝ հետևանք։"],["Թիմային պայմանագիր","Գործողություն 2․ համատեղ մշակվող փաստաթուղթ՝ դերերով, որոշումների և կոնֆլիկտների կանոններով։ Բաժին 7-ի կանոնը դրա մասն է։"],["Թիմի զարգացում","Հավասարեցման աշխատաժողով, թիմային պայմանագրի համատեղ մշակում, վստահության և համագործակցության զարգացում։"],["Թիմի կառավարում","Գործողություն 3․ կատարողականի հետևում, հետադարձ կապ (անհատական զրույցներ), խնդիրների լուծում (Որոշումների մատյան, վերադասին փոխանցում), կոնֆլիկտի կառավարում։"],["Վստահություն","Վստահություն → բաց հաղորդակցություն → խնդիրների վաղ բացահայտում → ավելի արագ միջամտություն։ Երեք գործողություններն էլ ամրապնդում են այս շղթան։"],["Կոնֆլիկտի կառավարում","Բաժին 6․ կոնֆլիկտի վերածում կառուցողականի՝ տվյալներ, չափանիշներ, այլընտրանքներ, հիմնավորված որոշում։"],["Բարձր արդյունավետ թիմ","Ընդհանուր նպատակ + հստակ դերեր + վստահություն + բաց հաղորդակցություն + կառուցողական կոնֆլիկտ + փոխադարձ հաշվետվողականություն։ Չի նշանակում նույն կարծիքը, այլ՝ տարբեր կարծիքների վերածում համատեղ արդյունքի։"]];
+const en=["","","Team Charter","Develop Team","Manage Team","Trust","Conflict management","High-performing team"];
+$("theory").innerHTML=th.map((t,i)=>`<details><summary>${t[0]}${en[i]?` <small style="font-weight:400;color:var(--mut)">(${en[i]})</small>`:""}</summary><p>${t[1]}</p></details>`).join("");
+
+const pl=[["Օր 1–3","Անհատական զրույցներ բոլորի հետ, որոշումների մատյանի գործարկում, աշխատաժողովի նախապատրաստում։","Նախագծի ղեկավար","Իրական մտահոգությունների քարտեզ։"],["Օր 3–5","Հավասարեցման աշխատաժողով (2 ժամ)։","Նախագծի ղեկավար + թիմ","Չափանիշներ, հաջորդականություն։"],["Շաբաթ 2","Թիմային պայմանագրի նիստ և ստորագրում, շաբաթական կարճ հանդիպման մեկնարկ։","Նախագծի ղեկավար + թիմ","Ստորագրված Charter։"],["Շաբաթ 2–3","Ուսումնասիրության փուլ (Տարբերակ C)․ գործընթացների քարտեզագրում + տեխնիկական ստուգում + UX հետազոտություն։","ՏՏ, գործընթացների մասնագետ, UX/UI, ուսանող","Տվյալներ որոշման համար։"],["Շաբաթ 4","Որոշման հանգրվան՝ առաջին ծառայությունների ընտրություն, բյուջեի հաստատում, հաղորդակցության պլանի թողարկում, հետադարձ քննարկում։","Ամբողջ թիմ + հովանավոր","Հաստատված որոշում, դասեր։"]];
+$("plan").innerHTML=pl.map(p=>`<div><b>${p[0]}</b> <span class="pill">${p[2]}</span><br>${p[1]}<br><i style="color:var(--mut)">Արդյունք․ ${p[3]}</i></div>`).join("");
+tbl("kpi",["Ցուցանիշ","Ներկա վիճակ","Նպատակ 30 օրում"],[
+["Որոշման ընդունման ժամկետ","Որոշումները հետաձգվում են։","≤ 5 աշխատանքային օր։"],
+["Ժամանակին կատարված առաջադրանքներ","Առաջադրանքները ուշանում են։","≥ 85%։"],
+["Նախագծի ղեկավարի միջամտությունները","Գրեթե յուրաքանչյուր հարցի։","Միայն վերադասին փոխանցման դեպքերում։"],
+["Արտահայտված տարաձայնություններ","Հանդիպումներին չեն արտահայտվում։","Յուրաքանչյուր էական որոշման համար ≥ 2 գրանցված դիրքորոշում։"],
+["Վստահության գնահատում (1–5՝ «Կարող եմ խնդիր բարձրացնել առանց վախի»)","Չափված չէ։","Միջին ≥ 4։"]]);
+const rk=[["Աշխատաժողովը վերածվում է նոր վեճի։","Ժամանակի սահմանափակում, նախապես համաձայնեցված չափանիշներ, նախագծի ղեկավարի վարման դեր, գրավոր նախապատրաստում։"],["Թիմային պայմանագիրը դառնում է ձևական փաստաթուղթ։","Կապել որոշումների մատյանի հետ, վերանայել 4 շաբաթը մեկ, չափել կատարումը։"],["Ուսումնասիրության համար բյուջեն բավարար չէ։","Նախօրոք համաձայնեցնել «բյուջեի միջանցք» ֆինանսիստի և հովանավորի հետ, նեղացնել ծառայությունների քանակը (3-ի)։"],["Լուռ անդամները շարունակում են լռել։","Անհատական զրույցներ, գրավոր նախաքննարկում, ռոտացիոն դերեր։"]];
+$("risks").innerHTML=rk.map(r=>`<details><summary>${r[0]}</summary><p><b>Մեղմացում․</b> ${r[1]}</p></details>`).join("");
+</script>
+<script>
+(function(){
+const R=document.documentElement,reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+addEventListener("scroll",()=>{$("pg").style.width=(R.scrollTop/Math.max(1,R.scrollHeight-R.clientHeight)*100)+"%"},{passive:true});
+$("thm").onclick=()=>{const c=R.dataset.theme||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");R.dataset.theme=c==="dark"?"light":"dark"};
+
+const fsb=$("fs"),fe=document.documentElement,inFs=()=>document.fullscreenElement||document.webkitFullscreenElement;
+const fsFail=()=>{fsb.textContent="Հասանելի չէ այստեղ";setTimeout(()=>fsb.textContent=inFs()?"✕ Փակել":"⛶ Լրիվ էկրան",2500)};
+fsb.onclick=()=>{try{if(inFs()){(document.exitFullscreen||document.webkitExitFullscreen).call(document)}else{const f=fe.requestFullscreen||fe.webkitRequestFullscreen;if(!f)return fsFail();const pr=f.call(fe);if(pr&&pr.catch)pr.catch(fsFail)}}catch(e){fsFail()}};
+["fullscreenchange","webkitfullscreenchange"].forEach(ev=>document.addEventListener(ev,()=>{fsb.textContent=inFs()?"✕ Փակել":"⛶ Լրիվ էկրան"}));
+// stats
+const sd=[[7,"անդամ թիմում"],[4,"տարբեր առաջնահերթություն"],[3,"գործողություն"],[30,"օրյա պլան"],[8,"տեսական հասկացություն"]];
+$("stats").innerHTML=sd.map(s=>`<div><b data-n="${s[0]}">${reduce?s[0]:0}</b>${s[1]}</div>`).join("");
+if(!reduce){const t0=performance.now();(function f(t){const k=Math.min(1,(t-t0)/900);document.querySelectorAll("#stats b").forEach(b=>b.textContent=Math.round(b.dataset.n*k));if(k<1)requestAnimationFrame(f)})(t0)}
+
+// hub
+const hubL=["ՏՏ","Գործընթաց","Մարքեթինգ","Ֆինանսներ","UX/UI","Ուսանող"];
+const hubD=[["Տեխնիկական իրագործելիության եզրակացություն, ճարտարապետության նախագիծ, ինտեգրացիաներ։","Տեխնիկական լուծումներ՝ համաձայնեցված չափանիշներով։"],["Ներկա և ցանկալի վիճակի գործընթացների քարտեզներ, կանոնակարգային պահանջներ։","Գործընթացի կանոններ և սահմանափակումներ։"],["Հաղորդակցության պլան, գործարկման քարոզարշավ՝ համաձայնեցված արտադրանքի պատրաստվածության հետ։","Հաղորդակցության բովանդակություն և ժամկետներ։"],["Բյուջեի բազային պլան, ծախսերի հսկողություն, «բյուջեի միջանցք»։","Բյուջեի շրջանակներ։"],["Օգտատերերի հետազոտություն, նախատիպեր, օգտագործելիության թեստեր։","Փորձառության լուծումներ։"],["Պահանջների վավերացում ուսանողների տեսանկյունից, մասնակցություն թեստերին։","Ուսանողի կարծիքի ներկայացում որոշումներում։"]];
+let mode="now",sel=0;
+const pos=hubL.map((_,k)=>{const a=(-90+60*k)*Math.PI/180;return[320+235*Math.cos(a),200+150*Math.sin(a)]});
+function drawHub(){
+const now=mode==="now";
+let s=`<svg viewBox="0 0 640 400" role="img" aria-label="Թիմի կապերի քարտեզ" style="width:100%;height:auto">`;
+if(!now)for(let i=0;i<6;i++)for(let j=i+1;j<6;j++)s+=`<line class="ed" x1="${pos[i][0]}" y1="${pos[i][1]}" x2="${pos[j][0]}" y2="${pos[j][1]}" style="stroke:var(--acc);opacity:.3;stroke-width:1.5"/>`;
+pos.forEach((p,i)=>{s+=`<line class="ed ${now?"flowl":""}" x1="320" y1="200" x2="${p[0]}" y2="${p[1]}" style="stroke:${now?(i<4?"var(--warn)":"var(--mut)"):"var(--acc)"};stroke-width:${now?(i<4?4:2):2}"/>`});
+s+=`<circle cx="320" cy="200" r="42" style="fill:${now?"var(--bad)":"var(--acc)"}"/><text x="320" y="198" text-anchor="middle" style="fill:var(--bg);font-weight:800;font-size:16px">Ղեկավար</text><text x="320" y="216" text-anchor="middle" style="fill:var(--bg);font-size:11px">${now?"խցան":"Վարող"}</text>`;
+pos.forEach((p,i)=>{const c=now?(i<4?"":"q"):"g";s+=`<g class="nd ${c} ${i===sel?"sel":""}" data-i="${i}" tabindex="0" role="button" aria-label="${mem[i][0]}"><circle cx="${p[0]}" cy="${p[1]}" r="36"/><text x="${p[0]}" y="${p[1]+4}" text-anchor="middle" style="font-size:12px;font-weight:600">${hubL[i]}</text></g>`});
+$("hub").innerHTML=s+"</svg>";
+const m=mem[sel];
+$("hubP").innerHTML=`<div class="note ${now?"w":""}">${now?"Հիմա՝ բոլոր կապերը անցնում են նախագծի ղեկավարով, իսկ UX/UI-ը և ուսանողը լուռ են (կետագիծ)։":"Նպատակ՝ անդամները հարցերը լուծում են միմյանց հետ, նախագծի ղեկավարը վարող է։"}</div><h3>${m[0]}</h3><dl class="panel" style="border-radius:10px;margin:0"><dt>Արտահայտված դիրքորոշում</dt><dd>${m[1]}</dd><dt>Հավանական մտահոգություն</dt><dd>${m[2]}</dd><dt>Արժեքը թիմի համար</dt><dd>${m[3]}</dd><dt>Պատասխանատու է (առաքվող արդյունք)</dt><dd>${hubD[sel][0]}</dd><dt>Որոշման իրավունք</dt><dd>${hubD[sel][1]}</dd></dl>`}
+$("hub").onclick=e=>{const g=e.target.closest(".nd");if(g){sel=+g.dataset.i;drawHub()}};
+$("hub").onkeydown=e=>{const g=e.target.closest(".nd");if(g&&(e.key==="Enter"||e.key===" ")){e.preventDefault();sel=+g.dataset.i;drawHub();$("hub").querySelector(`.nd[data-i="${sel}"]`).focus()}};
+function setMode(m){mode=m;$("hN").classList.toggle("on",m==="now");$("hG").classList.toggle("on",m!=="now");$("hN").setAttribute("aria-pressed",m==="now");$("hG").setAttribute("aria-pressed",m!=="now");drawHub()}
+$("hN").onclick=()=>setMode("now");$("hG").onclick=()=>setMode("goal");drawHub();
+
+// tuckman curve
+const tp=[[90,150],[240,185],[400,120],[570,45]],tn=["Ձևավորում","Բախում","Նորմավորում","Արդյունավետ աշխատանք"];
+function drawT(i){
+let s=`<svg viewBox="0 0 640 240" role="img" aria-label="Tuckman-ի փուլերի կորը" style="width:100%;height:auto"><line x1="40" y1="205" x2="620" y2="205" style="stroke:var(--line);stroke-width:2"/><line x1="40" y1="20" x2="40" y2="205" style="stroke:var(--line);stroke-width:2"/><text x="46" y="16" style="font-size:11px;fill:var(--mut)">Թիմի արդյունավետություն</text><text x="620" y="199" text-anchor="end" style="font-size:11px;fill:var(--mut)">ժամանակ</text><path d="M40,140 C65,140 65,150 90,150 C165,150 165,185 240,185 C320,185 320,120 400,120 C485,120 485,45 570,45" style="fill:none;stroke:var(--mut);stroke-width:3"/><circle class="pulse" cx="240" cy="185" r="14"/><text x="240" y="128" text-anchor="middle" style="font-size:12px;font-weight:700;fill:var(--warn)">Թիմը հիմա՝ լուռ բախում</text><line x1="240" y1="136" x2="240" y2="168" style="stroke:var(--warn);stroke-width:2;stroke-dasharray:4 3"/>`;
+tp.forEach((p,k)=>{s+=`<g class="tp" data-i="${k}" tabindex="0" role="button" aria-label="${tn[k]}"><circle cx="${p[0]}" cy="${p[1]}" r="${k===i?15:10}" style="fill:${k===1?"var(--warn)":"var(--acc)"};stroke:var(--ink);stroke-width:${k===i?3:0}"/><text x="${p[0]}" y="225" text-anchor="middle" style="font-size:13px;font-weight:${k===i?800:400}">${tn[k]}</text></g>`});
+$("tuck").innerHTML=s+`</svg><p style="margin:4px 0 0;color:var(--mut);font-size:.88rem">Նպատակ՝ բախում → նորմավորում անցում 30 օրում։ Սեղմեք փուլի վրա։</p>`}
+const _s=showStg;showStg=function(i){_s(i);drawT(i)};
+$("tuck").onclick=e=>{const g=e.target.closest(".tp");if(g)showStg(+g.dataset.i)};
+$("tuck").onkeydown=e=>{const g=e.target.closest(".tp");if(g&&(e.key==="Enter"||e.key===" ")){e.preventDefault();showStg(+g.dataset.i)}};
+showStg(1);
+
+// vicious cycle
+let brk=false,an=true;
+const L0=["Նախագծի ղեկավարը միջամտում է ամեն հարցի","Անդամները վեճերը տանում են նախագծի ղեկավարին","Նվազում են վստահությունն ու սեփականության զգացումը","Առաջանում են նոր չլուծված տարաձայնություններ"];
+const L1=["Նախագծի ղեկավարը վարում է քննարկումը, չի լուծում նրանց փոխարեն","Անդամները տարաձայնությունը բացահայտում են թիմում","Վստահությունն ու սեփականությունն աճում են","Հարցերը փակվում են որոշումների մատյանով՝ ժամկետում"];
+const N=[[320,45],[535,150],[320,255],[105,150]],AR=["M415 45 Q535 45 535 118","M535 182 Q530 258 417 258","M223 258 Q105 262 105 182","M105 118 Q110 45 225 45"];
+function drawL(){
+const col=brk?"var(--acc)":"var(--bad)";
+let s=`<svg viewBox="0 0 640 300" role="img" aria-label="Ինքնուժեղացող շրջան" style="width:100%;height:auto"><defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" style="fill:${col}"/></marker></defs>`;
+AR.forEach(d=>{s+=`<path d="${d}" class="flowl ${an?"":"off"}" marker-end="url(#ah)" style="fill:none;stroke:${col};stroke-width:3"/>`});
+N.forEach((p,i)=>{s+=`<foreignObject x="${p[0]-95}" y="${p[1]-28}" width="190" height="56"><div xmlns="http://www.w3.org/1999/xhtml" class="ln ${brk?"ok":""}">${(brk?L1:L0)[i]}</div></foreignObject>`});
+s+=`<text x="320" y="146" text-anchor="middle" style="font-weight:800;font-size:15px;fill:${col}">${brk?"Առողջ շրջան":"Ինքնուժեղացող"}</text><text x="320" y="166" text-anchor="middle" style="font-weight:800;font-size:15px;fill:${col}">${brk?"թիմն ինքն է լուծում":"(արատավոր շրջան)"}</text></svg>`;
+$("loop").innerHTML=s}
+$("lb").onclick=()=>{brk=!brk;$("lb").classList.toggle("on",brk);$("lb").setAttribute("aria-pressed",brk);$("lb").textContent=brk?"Վերադառնալ սկզբնական վիճակին":"Կոտրել շրջանը (Գործողություն 1–3)";drawL()};
+$("la").onclick=()=>{an=!an;$("la").classList.toggle("on",an);$("la").setAttribute("aria-pressed",an);$("la").textContent=an?"Շարժում՝ միացված":"Շարժում՝ անջատված";drawL()};drawL();
+
+// agenda clock
+const ag=[["Նպատակ և չափանիշներ",15,"Ընդհանուր նպատակ և հաջողության չափանիշներ (ուսանողը մեկ հարթակից ստանում է ծառայությունները)։ Շրջանակավորում․ «բոլոր չորս դիրքորոշումները մասնագիտորեն արժեքավոր են»։"],["Շրջանաձև խոսք",30,"Նախ՝ լուռ գրավոր գրառումներ։ Հետո յուրաքանչյուրը՝ (ա) իմ առաջնահերթությունը, (բ) ինչից եմ վախենում, եթե հաշվի չառնվի, (գ) ինչ եմ ակնկալում մյուսներից։ UX/UI-ին և ուսանողին ուղղակի հրավիրում են խոսել։"],["Որոշման չափանիշներ",30,"Համաձայնեցնել չափանիշները (արժեք ուսանողի համար, ռիսկի նվազեցում, ժամկետ, բյուջե, կախվածություններ) և դրանց կշիռները։"],["Կախվածությունների քարտեզ",30,"Գործընթացների քարտեզագրում ↔ տեխնիկական իրագործելիություն ↔ UX հետազոտություն ↔ բյուջե ↔ հաղորդակցություն։ Արդյունք՝ առաջին 6 շաբաթի համաձայնեցված հաջորդականություն։"],["Գրանցում",15,"Որոշումների, պատասխանատուների և ժամկետների գրանցում։"]];
+let timer=null;
+const fm=t=>Math.floor(t/60)+":"+String(Math.floor(t%60)).padStart(2,"0");
+function segSel(k){document.querySelectorAll(".sg").forEach((b,j)=>{b.classList.toggle("on",j===k);b.setAttribute("aria-expanded",j===k)});const a=document.getElementById("agd");if(!a)return;if(k<0){a.innerHTML=`<p style="color:var(--mut);margin:0">Սեղմեք ժամանակացույցի որևէ հատվածի վրա՝ մանրամասները տեսնելու համար։</p>`;return}
+const st=ag.slice(0,k).reduce((x,y)=>x+y[1],0);a.innerHTML=`<div class="note" style="margin:0"><b>${ag[k][0]}</b> <span class="pill">${fm(st)}–${fm(st+ag[k][1])} · ${ag[k][1]} րոպե</span><br>${ag[k][2]}</div>`}
+function agHtml(){return `<h3 style="margin-top:20px">2-ժամյա աշխատաժողովի ժամանակացույց</h3><div class="agb" id="agb">${ag.map((a,k)=>`<button class="sg" aria-expanded="false" data-k="${k}" style="flex-grow:${a[1]}">${a[0]}</button>`).join("")}</div><div id="agd" style="margin-top:10px"></div>`}
+const _a=showA;showA=function(i){_a(i);if(i===0){$("actOut").insertAdjacentHTML("beforeend",agHtml());segSel(-1)}};
+$("actOut").onclick=e=>{const b=e.target.closest(".sg");if(b){const k=+b.dataset.k;segSel(b.classList.contains("on")?-1:k)}};
+showA(0);
+
+// weighted bars + radar
+const bc=["var(--mut)","var(--warn)","var(--acc)"],sh=[1,.8,.62,.46,.32],ax=["Ռիսկ","Ուսանող","Ժամկետ","Բյուջե","Ընդունելիություն"];
+let vis=[1,1,1],axs=0;const base0=cr.map(c=>c[2].slice());
+const cd=["Որքանով է տարբերակը նվազեցնում սխալ հիմքից սկսելու ռիսկը՝ չիրագործվող լուծում կամ սխալ գործընթացի ավտոմատացում։","Որքանով է տարբերակը մոտեցնում այն նպատակին, որ ուսանողը մեկ հարթակից ստանա ծառայությունները։","Ինչպես է տարբերակն ազդում առաջին արդյունքի ստացման ժամկետի վրա։","Որքանով է տարբերակը տեղավորվում բյուջեի շրջանակում։","Որքանով է տարբերակն ընդունելի ինչպես ՏՏ մասնագետի, այնպես էլ գործընթացների մասնագետի համար։"];
+const note=["Սկսում է տեխնիկական իրագործելիությունից․ ռիսկը՝ գործընթացը կարող է չհամապատասխանել իրականին։","Սկսում է գործող գործընթացներից․ ռիսկը՝ կարող է պարզվել, որ դրանք տեխնիկապես չեն իրագործվում։","Երկու ստուգումները՝ գործընթացի քարտեզագրումը և տեխնիկական իրագործելիությունը, կատարվում են զուգահեռ 3–5 ծառայության համար՝ 2 շաբաթում։"];
+calc=function(){
+const tot=W.reduce((a,b)=>a+b,0)||1;
+const sc=[0,1,2].map(k=>cr.reduce((a,c,i)=>a+W[i]*c[2][k],0)/tot),mx=Math.max(...sc);
+$("rs").innerHTML=sc.map((s,k)=>`<div class="res"><span>${opt[k]}</span><div style="display:flex;align-items:center;gap:8px"><div style="display:flex;width:${s/5*85}%;height:26px;transition:width .3s">${cr.map((c,i)=>`<div title="${c[0]}" style="width:${(W[i]*c[2][k]/tot)/s*100}%;background:${bc[k]};opacity:${sh[i]};border-right:1px solid var(--card)"></div>`).join("")}</div><b>${s.toFixed(2)}</b></div></div>`).join("")+`<div class="lg">${cr.map((c,i)=>`<span><i style="background:var(--mut);opacity:${sh[i]}"></i>${c[0]}</span>`).join("")}</div>`;
+$("rm").innerHTML=`Կշիռների գումարը՝ <b>${tot}%</b> (հաշվարկը նորմավորվում է)։ Առաջատար՝ <b>${opt[sc.indexOf(mx)]}</b>։ Սյունակի հատվածները ցույց են տալիս յուրաքանչյուր չափանիշի ներդրումը։`;
+const cx=240,cy=150,rr=95,an2=i=>(-90+72*i)*Math.PI/180,pt=(i,v)=>[cx+rr*v/5*Math.cos(an2(i)),cy+rr*v/5*Math.sin(an2(i))],win=sc.indexOf(mx);
+let r=`<svg viewBox="0 0 480 300" role="img" aria-label="Գնահատականների ռադար" style="width:100%;max-width:560px;height:auto;display:block;margin:auto">`;
+[1,2,3,4,5].forEach(v=>{r+=`<polygon points="${ax.map((_,i)=>pt(i,v).join(",")).join(" ")}" style="fill:none;stroke:var(--line)"/><text x="${cx+3}" y="${cy-rr*v/5+10}" style="font-size:9px;fill:var(--mut)">${v}</text>`});
+ax.forEach((a,i)=>{const e=pt(i,5),c=Math.cos(an2(i)),lx=cx+(rr+14)*c,ly=cy+(rr+14)*Math.sin(an2(i))+4;r+=`<line x1="${cx}" y1="${cy}" x2="${e[0]}" y2="${e[1]}" style="stroke:${i===axs?"var(--ink)":"var(--line)"};stroke-width:${i===axs?2:1}"/><g class="rx" data-ax="${i}" tabindex="0" role="button" aria-label="${a}" style="cursor:pointer"><rect x="${c>.2?lx-4:c<-.2?lx-128:lx-66}" y="${ly-15}" width="132" height="22" rx="6" style="fill:${i===axs?"var(--accbg)":"transparent"}"/><text x="${lx}" y="${ly}" text-anchor="${Math.abs(c)<.2?"middle":c>0?"start":"end"}" style="font-size:11px;font-weight:${i===axs?800:400}">${a} ${W[i]}%</text></g>`});
+[0,1,2].forEach(k=>{if(!vis[k])return;r+=`<polygon points="${cr.map((c,i)=>pt(i,c[2][k]).join(",")).join(" ")}" style="fill:${bc[k]};fill-opacity:${k===win?.28:.14};stroke:${bc[k]};stroke-width:${k===win?3.5:2}"/>`;cr.forEach((c,i)=>{const q=pt(i,c[2][k]);r+=`<circle class="rx" data-ax="${i}" cx="${q[0]}" cy="${q[1]}" r="${i===axs?6:4}" style="fill:${bc[k]};stroke:var(--card);stroke-width:1.5;cursor:pointer"><title>${opt[k]} · ${c[0]}՝ ${c[2][k]}</title></circle>`})});
+$("radar").innerHTML=r+"</svg>";
+$("radarL").innerHTML=opt.map((o,k)=>`<button class="optc ${vis[k]?"on":""}" data-k="${k}" aria-pressed="${!!vis[k]}" style="border-color:${bc[k]}"><span>${sc[k].toFixed(2)}</span><b>${o}</b>${k===win?` <span class="pill">առաջատար</span>`:""}<small>${note[k]}</small></button>`).join("");
+const q=$("rw");if(q&&document.activeElement!==q){q.value=W[axs];$("rwv").textContent=W[axs]+"%"}
+};
+calc();
+function rp(){const c=cr[axs];$("radarP").innerHTML=`<div class="note"><b>${c[0]}</b><br>${cd[axs]}</div><div class="rr"><label for="rw">Կշիռ</label><input type="range" id="rw" min="0" max="60" value="${W[axs]}"><span id="rwv">${W[axs]}%</span></div>${[0,1,2].map(k=>`<div class="rr"><label for="rs${k}">${opt[k]}</label><input type="range" class="rsl" id="rs${k}" min="1" max="5" step="1" value="${c[2][k]}" data-k="${k}"><span id="rsv${k}">${c[2][k]}</span></div>`).join("")}<button class="tgl" id="rrst">Վերականգնել սկզբնական միավորները</button>`}
+$("radar").onclick=e=>{const g=e.target.closest(".rx");if(g){axs=+g.dataset.ax;calc();rp()}};
+$("radar").onkeydown=e=>{const g=e.target.closest(".rx");if(g&&(e.key==="Enter"||e.key===" ")){e.preventDefault();axs=+g.dataset.ax;calc();rp()}};
+$("radarL").onclick=e=>{const b=e.target.closest(".optc");if(b){vis[+b.dataset.k]=vis[+b.dataset.k]?0:1;calc()}};
+$("radarP").oninput=e=>{const t=e.target;if(t.id==="rw"){W[axs]=+t.value;$("rwv").textContent=W[axs]+"%";$("w"+axs).value=W[axs];$("v"+axs).textContent=W[axs]+"%";calc()}else if(t.classList.contains("rsl")){cr[axs][2][+t.dataset.k]=+t.value;$("rsv"+t.dataset.k).textContent=t.value;calc()}};
+$("radarP").onclick=e=>{if(e.target.id==="rrst"){cr.forEach((c,i)=>{c[2]=base0[i].slice()});rp();calc()}};
+rp();
+
+// gantt
+const gd=[["Անհատական զրույցներ բոլորի հետ",1,3,0],["Հավասարեցման աշխատաժողով (2 ժամ)",3,5,1],["Որոշումների մատյանի վարում",1,30,0],["Թիմային պայմանագրի նիստ և ստորագրում",8,14,2],["Շաբաթական կարճ հանդիպում",8,30,2],["Ուսումնասիրության փուլ (Տարբերակ C)",8,21,3],["Որոշման հանգրվան + հետադարձ քննարկում",22,28,4]];
+$("gw").innerHTML=["Շաբաթ 1","Շաբաթ 2","Շաբաթ 3","Շաբաթ 4",""].map((w,i)=>`<span style="width:${i<4?7/30*100:2/30*100}%">${w}</span>`).join("");
+$("gantt").innerHTML=gd.map((g,i)=>`<div class="gl">${g[0]}</div><div class="gr"><button class="gb" data-i="${i}" aria-label="${g[0]}" style="left:${(g[1]-1)/30*100}%;width:${(g[2]-g[1]+1)/30*100}%"></button>${i===0?"":""}</div>`).join("")+`<div class="cur" id="cur"></div>`;
+$("gantt").style.position="relative";
+let gsel=-1;
+function gUp(){const d=+$("gday").value;$("cur").style.left=((d-.5)/30*100)+"%";document.querySelectorAll(".gb").forEach((b,i)=>b.classList.toggle("on",gd[i][1]<=d&&d<=gd[i][2]));const act=gd.filter(g=>g[1]<=d&&d<=g[2]);let h=`<p><b>Օր ${d}</b> (շաբաթ ${Math.min(5,Math.ceil(d/7))}) · ակտիվ՝ ${act.map(g=>`<span class="pill">${g[0]}</span>`).join(" ")}</p>`;if(gsel>=0){const p=pl[gd[gsel][3]];h+=`<div class="note"><b>${gd[gsel][0]}</b><br>${p[1]}<br><b>Պատասխանատու՝</b> ${p[2]}<br><b>Արդյունք՝</b> ${p[3]}</div>`}$("gi").innerHTML=h}
+$("gday").oninput=gUp;
+$("gantt").onclick=e=>{const b=e.target.closest(".gb");if(b){gsel=+b.dataset.i;gUp()}};gUp();
+
+})();
+</script>
+</body>
+</html>
